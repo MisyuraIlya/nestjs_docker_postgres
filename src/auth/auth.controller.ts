@@ -21,18 +21,18 @@ export class AuthController {
 		return this.authService.register(dto)
 	}
 
-	// @UsePipes(new ValidationPipe())
-	// @HttpCode(200)
-	// @Post('login')
-	// async login(@Body() dto: AuthDto) {
-	// 	return this.authService.login(dto)
-	// }
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post('login')
+	async login(@Body() dto: AuthDto) {
+		return this.authService.login(dto)
+	}
 
-	// @UsePipes(new ValidationPipe())
-	// @HttpCode(200)
-	// @Post('login/access-token')
-	// async getNewTokens(@Body() dto: RefreshTokenDto) {
-	// 	return this.authService.getNewTokens(dto.refreshToken)
-	// }
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post('login/access-token')
+	async getNewTokens(@Body() dto: RefreshTokenDto) {
+		return this.authService.getNewTokens(dto.refreshToken)
+	}
 
 }

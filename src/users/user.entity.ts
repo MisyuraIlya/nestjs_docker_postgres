@@ -5,9 +5,11 @@ export class UsersEntity {
     @PrimaryGeneratedColumn()
     id: number; 
     
-
     @Column()
     email: string
+
+    @Column()
+    password: string
 
     @Column()
     firstName: string;
@@ -17,4 +19,8 @@ export class UsersEntity {
 
     @Column({default: true})
     isActive: boolean;
+
+    @Column({default: false})
+    isAdmin: boolean;
+
 }

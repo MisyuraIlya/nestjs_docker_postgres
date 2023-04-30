@@ -21,7 +21,6 @@ export class AuthService {
   ){}
     
   async register(dto: AuthDto) {
-
 		const existUser = await this.usersRepository.findOne({
       where: {
         email: dto.email,
@@ -32,21 +31,87 @@ export class AuthService {
 
     const user = await this.usersRepository.create({
       email: dto.email,
+      password: await hash(dto.password),
       firstName: dto.firstName,
       lastName: dto.lastName,
-      isActive: true
+      isActive: true,
+      isAdmin: dto.isAdmin
     });
 
     const save = await this.usersRepository.save(user);
 
+    const tokens = await this.issueTokens(user.id)
 
+		return {
+			user: this.returnUsersFields(user),
+			...tokens
+		}
   }
 
-  async login() {
+  async login(dto: AuthDto) {
+		const user = await this.validateUser(dto)
 
+		const tokens = await this.issueTokens(user.id)
+
+		return {
+			user: this.returnUsersFields(user),
+			...tokens
+		}
   }
 
-  async getNewTokens() {
-    
+  async getNewTokens(refreshToken: string) {
+    const result = await this.jwt.verifyAsync(refreshToken)
+		if (!result) throw new UnauthorizedException('Invalid refresh token')
+
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: result.id
+      }
+    })
+
+		const tokens = await this.issueTokens(user.id)
+
+		return {
+			user: this.returnUsersFields(user),
+			...tokens
+		}
+  }
+
+  private async issueTokens(userId: number) {
+    const data = {id: userId}
+
+    const accessToken = this.jwt.sign(data, {
+      expiresIn: '1h'
+    })
+
+    const refreshToken = this.jwt.sign(data, {
+      expiresIn: '7d'
+    })
+
+    return { accessToken, refreshToken }
+  }
+
+  private returnUsersFields(user: UsersEntity) {
+    return {
+      id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin
+    }
+  }
+
+  private async validateUser(dto: AuthDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: dto.email
+      }
+    })
+
+    if (!user) throw new NotFoundException('User not found')
+
+    const isValid = await verify(user.password, dto.password)
+
+    if (!isValid) throw new UnauthorizedException('Invalid password')
+
+    return user
   }
 }
