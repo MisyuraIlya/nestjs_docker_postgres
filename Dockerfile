@@ -3,16 +3,16 @@
 FROM node:18.16.0-alpine AS base
 
 WORKDIR /app
-COPY ["package.json", "yarn.lock*", "./"]
+COPY ["package.json", "package-lock.json*", "./"]
 
 FROM base AS dev
-RUN yarn install --frozen-lockfile
+RUN npm install
 COPY . .
-CMD ["yarn", "start:dev"]
+CMD ["npm", "run", "start:dev"]
 
 FROM base AS prod
-RUN yarn install --frozen-lockfile --production
+RUN npm install --frozen-lockfile --production
 COPY . .
-RUN yarn add global @nestjs/cli
-RUN yarn build
-CMD ["yarn", "start:prod"]
+RUN npm add global @nestjs/cli
+RUN npm build
+CMD ["npm", "start:prod"]
