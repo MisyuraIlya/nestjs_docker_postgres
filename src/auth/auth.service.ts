@@ -95,16 +95,19 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      userType: user.userType
     }
   }
 
   private async validateUser(dto: AuthDto) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        email: dto.email
-      }
-    })
+    const user = await this.usersRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.userType', 'userType')
+    .where('user.email = :email', { email: dto.email })
+    .getOne();
+
+    console.log(user)
 
     if (!user) throw new NotFoundException('User not found')
 

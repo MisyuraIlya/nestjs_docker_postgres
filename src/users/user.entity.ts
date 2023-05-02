@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, ManyToOne, PrimaryGeneratedColumn, Column } from "typeorm";
+import { UserTypesEntity } from "src/auth/userType.entity";
 
 @Entity({ name: 'Users' })
 export class UsersEntity {
@@ -22,5 +23,9 @@ export class UsersEntity {
 
     @Column({default: false})
     isAdmin: boolean;
+    
+
+    @ManyToOne(() => UserTypesEntity, userType => userType.users)
+    userType: UserTypesEntity;
 
 }
